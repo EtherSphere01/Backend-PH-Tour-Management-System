@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { UserControllers } from "./user.controller";
 import z from "zod";
-import { createUserZodSchema } from "./user.validation";
+import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
 import { ZodObject } from "zod";
 import { validateRequest } from "../../middlewares/validateRequest";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -24,6 +24,7 @@ router.get(
 );
 router.patch(
     "/:id",
+    validateRequest(updateUserZodSchema),
     checkAuth(...Object.values(Role)),
     UserControllers.updateUser
 );
