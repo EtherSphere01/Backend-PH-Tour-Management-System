@@ -12,6 +12,11 @@ interface EnvConfig {
     JWT_ACCESS_EXPIRES: string;
     JWT_REFRESH_SECRET: string;
     JWT_REFRESH_EXPIRES: string;
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_CLIENT_SECRET: string;
+    GOOGLE_CALLBACK_URL?: string;
+    EXPRESS_SESSION_SECRET?: string;
+    FRONTEND_URL?: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -26,6 +31,11 @@ const loadEnvVariables = (): EnvConfig => {
         "BCRYPT_SALT_ROUNDS",
         "SUPER_ADMIN_EMAIL",
         "SUPER_ADMIN_PASSWORD",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_CALLBACK_URL",
+        "EXPRESS_SESSION_SECRET",
+        "FRONTEND_URL",
     ];
 
     requiredEnvVars.forEach((envVar) => {
@@ -44,6 +54,11 @@ const loadEnvVariables = (): EnvConfig => {
         BCRYPT_SALT_ROUNDS: process.env.BCRYPT_SALT_ROUNDS!,
         SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL!,
         SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD!,
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
+        GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
+        EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET,
+        FRONTEND_URL: process.env.FRONTEND_URL,
     };
 };
 
