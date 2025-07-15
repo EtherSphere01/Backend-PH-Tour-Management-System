@@ -69,7 +69,34 @@ const getNewAccessToken = async (refreshToken: string) => {
     };
 };
 
+const resetPassword = async (
+    oldPassword: string,
+    newPassword: string,
+    decodedToken: JwtPayload
+) => {
+    const user = await User.findById(decodedToken.userId);
+    const isOldPasswordMatch = await bcryptjs.compare(
+        oldPassword,
+        user!.password as string
+    );
+    if (!isOldPasswordMatch) {
+        throw new AppError(
+            httpStatus.UNAUTHORIZED,
+            "Old password is incorrect",
+            ""
+        );
+    }
+
+    const hashedNewPassword = await bcryptjs.hash(
+        newPassword,
+        parseInt(envVars.BCRYPT_SALT_ROUNDS)
+    );
+    user!.password = hashedNewPassword;
+    await user!.save();
+};
+
 export const AuthServices = {
     credentialsLogin,
     getNewAccessToken,
+    resetPassword,
 };
