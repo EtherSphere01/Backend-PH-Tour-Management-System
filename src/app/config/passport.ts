@@ -7,6 +7,8 @@ import {
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
 import { Role } from "../modules/user/user.interface";
+import { Strategy as LocalStrategy } from "passport-local";
+import bcrypt from "bcryptjs";
 
 passport.use(
     new GoogleStrategy(
@@ -63,3 +65,46 @@ passport.deserializeUser(async (id: string, done: any) => {
         done(error);
     }
 });
+
+passport.use(
+    new LocalStrategy(
+        {
+            usernameField: "email",
+            passwordField: "password",
+        },
+        async (email: string, passport: string, done: any) => {
+            try {
+                const isUserExist = await User.findOne({ email });
+                if (!isUserExist) {
+                    return done(null, false, {
+                        message: "User does not exist",
+                    });
+                }
+
+                const isGoogleAuthenticated = isUserExist.auths.some(
+                    (providerObjects) => providerObjects.provider === "google"
+                );
+
+                if (isGoogleAuthenticated && !isUserExist.password) {
+                    return done(null, false, {
+                        message: "Please login with Google",
+                    });
+                }
+
+                const isPasswordMatch = await bcrypt.compare(
+                    passport,
+                    isUserExist.password!
+                );
+                if (!isPasswordMatch) {
+                    return done(null, false, {
+                        message: "Incorrect password",
+                    });
+                }
+
+                return done(null, isUserExist);
+            } catch (error) {
+                done(error);
+            }
+        }
+    )
+);

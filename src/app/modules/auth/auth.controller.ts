@@ -7,19 +7,42 @@ import AppError from "../../errorHelpers/AppError";
 import { setAuthCookie } from "../../utils/setCookie";
 import { createUserTokens } from "../../utils/userTokens";
 import { envVars } from "../../config/env";
+import passport from "passport";
 
 const credentialsLogin = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-        const loginInfo = await AuthServices.credentialsLogin(req.body);
+        // const loginInfo = await AuthServices.credentialsLogin(req.body);
+        passport.authenticate(
+            "local",
+            async (err: any, user: any, info: any) => {
+                if (err) {
+                    return next(err);
+                }
 
-        setAuthCookie(res, loginInfo);
+                if (!user) {
+                    return next(
+                        new AppError(httpStatus.NOT_FOUND, info.message, "")
+                    );
+                }
 
-        sendResponse(res, {
-            statusCode: 200,
-            success: true,
-            message: "Login successful",
-            data: loginInfo,
-        });
+                const userTokens = await createUserTokens(user);
+
+                const { password, ...rest } = user.toObject();
+
+                setAuthCookie(res, userTokens);
+
+                sendResponse(res, {
+                    statusCode: 200,
+                    success: true,
+                    message: "Login successful",
+                    data: {
+                        accessToken: userTokens.accessToken,
+                        refreshToken: userTokens.refreshToken,
+                        user: rest,
+                    },
+                });
+            }
+        )(req, res, next);
     }
 );
 
