@@ -6,7 +6,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { verifyToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
-import { JwtPayload } from "jsonwebtoken";
+import { Jwt, JwtPayload } from "jsonwebtoken";
 
 // const createUser = async (req: Request, res: Response, next: NextFunction) => {
 //     try {
@@ -38,6 +38,18 @@ const createUser = catchAsync(
     }
 );
 
+const getMe = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const decodedToken = req.user as JwtPayload;
+        const result = await userServices.getMe(decodedToken.userId);
+        sendResponse(res, {
+            statusCode: httpStatus.OK,
+            success: true,
+            message: "User retrieved successfully",
+            data: result.data,
+        });
+    }
+);
 const getAllUsers = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const result = await userServices.getAllUsers();
@@ -47,6 +59,19 @@ const getAllUsers = catchAsync(
             message: "Users retrieved successfully",
             data: result.data,
             meta: result.meta,
+        });
+    }
+);
+
+const getSingleUser = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const id = req.params.id;
+        const result = await userServices.getSingleUser(id);
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "User Retrieved Successfully",
+            data: result.data,
         });
     }
 );
@@ -86,4 +111,6 @@ export const UserControllers = {
     createUser,
     getAllUsers,
     updateUser,
+    getMe,
+    getSingleUser,
 };

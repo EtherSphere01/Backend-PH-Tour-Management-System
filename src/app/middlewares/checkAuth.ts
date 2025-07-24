@@ -59,6 +59,22 @@ export const checkAuth =
                 );
             }
 
+            if (!isUserExists.isVerified) {
+                throw new AppError(
+                    httpStatus.UNAUTHORIZED,
+                    "User is not verified",
+                    ""
+                );
+            }
+
+            if (!authRoles.includes(verifyToken.role)) {
+                throw new AppError(
+                    httpStatus.FORBIDDEN,
+                    "You are not authorized to access this resource",
+                    ""
+                );
+            }
+
             req.user = verifyToken;
             next();
         } catch (error) {
