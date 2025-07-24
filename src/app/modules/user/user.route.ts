@@ -9,12 +9,14 @@ import AppError from "../../errorHelpers/AppError";
 import { Role } from "./user.interface";
 import { envVars } from "../../config/env";
 import { checkAuth } from "../../middlewares/checkAuth";
+import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
 router.post(
     "/register",
     validateRequest(createUserZodSchema),
+    multerUpload.single("file"),
     UserControllers.createUser
 );
 router.get(
@@ -25,6 +27,7 @@ router.get(
 router.patch(
     "/:id",
     validateRequest(updateUserZodSchema),
+    multerUpload.single("file"),
     checkAuth(...Object.values(Role)),
     UserControllers.updateUser
 );
