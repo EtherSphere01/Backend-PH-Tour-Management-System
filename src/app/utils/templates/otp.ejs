@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Forgot Password</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f7f7f7;
+                color: #333;
+            }
+            .container {
+                max-width: 500px;
+                margin: 40px auto;
+                background: #fff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            }
+            .btn {
+                display: inline-block;
+                padding: 12px 24px;
+                background: #007bff;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 4px;
+                margin-top: 20px;
+                font-size: 14px;
+            }
+            .footer {
+                margin-top: 30px;
+                font-size: 12px;
+                color: #888;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>OTP Verification</h2>
+            <p>Hello <%= name %>,</p>
+            <p class="btn">Your OTP code is: <strong><%= otp %></strong></p>
+            <p>This code is valid for 2 minutes.</p>
+            <div class="footer">
+                &copy; Tour Management. All rights reserved.
+            </div>
+        </div>
+    </body>
+</html>
