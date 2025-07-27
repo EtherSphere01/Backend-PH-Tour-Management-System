@@ -19,10 +19,15 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     try {
         const user = await User.findById(userId);
 
+        // Optional: Comment out or modify this validation if you want to allow booking without complete profile
         if (!user?.phone || !user.address) {
+            console.warn(
+                `User ${userId} attempting to book without complete profile`
+            );
+            // You can either throw error (current behavior) or just log a warning
             throw new AppError(
                 httpStatus.BAD_REQUEST,
-                "Please Update Your Profile to Book a Tour.",
+                "Please Update Your Profile to Book a Tour. Add your phone number and address.",
                 ""
             );
         }

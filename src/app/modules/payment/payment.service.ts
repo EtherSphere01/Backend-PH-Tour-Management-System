@@ -7,6 +7,10 @@ import AppError from "../../errorHelpers/AppError";
 import httpStatus from "http-status-codes";
 import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
+import { generatePDF, IInvoiceData } from "../../utils/invoice";
+import { ITour } from "../tour/tour.interface";
+import { IUser } from "../user/user.interface";
+import { sendEmail } from "../../utils/sendEmail";
 
 const initPayment = async (bookingId: string) => {
     const payment = await Payment.findOne({ booking: bookingId });
@@ -58,7 +62,45 @@ const successPayment = async (query: Record<string, string>) => {
             updatedPayment?.booking,
             { status: BOOKING_STATUS.COMPLETE },
             { new: true, runValidators: true, session }
-        );
+        )
+            .populate("tour", "title")
+            .populate("user", "name", "email");
+
+        if (!updatedBooking) {
+            throw new AppError(
+                httpStatus.NOT_FOUND,
+                "Booking not found for the payment",
+                ""
+            );
+        }
+        const invoiceData: IInvoiceData = {
+            bookingDate: updatedBooking?.createdAt || new Date(),
+            guestCount: updatedBooking?.guestCount || 0,
+            totalAmount: updatedPayment?.amount || 0,
+            tourTitle:
+                (updatedBooking?.tour as unknown as ITour).title ||
+                "Unknown Tour",
+            transactionId: updatedPayment?.transactionId || "N/A",
+            userName:
+                (updatedBooking?.user as unknown as IUser).name ||
+                "Unknown User",
+        };
+
+        const pdfBuffer = await generatePDF(invoiceData);
+
+        await sendEmail({
+            to: (updatedBooking?.user as unknown as IUser).email,
+            subject: "Payment Successful - Invoice",
+            templateName: "invoice",
+            templateData: invoiceData,
+            attachments: [
+                {
+                    filename: `invoice-${invoiceData.transactionId}.pdf`,
+                    content: pdfBuffer,
+                    contentType: "application/pdf",
+                },
+            ],
+        });
 
         await session.commitTransaction();
         session.endSession();

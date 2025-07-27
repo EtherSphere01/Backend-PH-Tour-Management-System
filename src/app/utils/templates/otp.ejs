@@ -4,44 +4,270 @@
         <meta charset="UTF-8" />
         <title>Forgot Password</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-                background: #f7f7f7;
-                color: #333;
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+                line-height: 1.6;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
             .container {
-                max-width: 500px;
+                max-width: 600px;
                 margin: 40px auto;
                 background: #fff;
-                padding: 30px;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                border-radius: 20px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+                overflow: hidden;
+                position: relative;
             }
+
+            .container::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 5px;
+                background: linear-gradient(
+                    90deg,
+                    #667eea 0%,
+                    #764ba2 50%,
+                    #667eea 100%
+                );
+            }
+
+            .header {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                color: white;
+                padding: 40px 30px;
+                text-align: center;
+                position: relative;
+            }
+
+            .header::before {
+                content: "🔐";
+                font-size: 3rem;
+                display: block;
+                margin-bottom: 15px;
+                filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.2));
+            }
+
+            .header h2 {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 10px;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .header-subtitle {
+                font-size: 1rem;
+                opacity: 0.9;
+                font-weight: 300;
+            }
+
+            .content {
+                padding: 40px 30px;
+            }
+
+            .greeting {
+                font-size: 1.2rem;
+                color: #2c3e50;
+                margin-bottom: 25px;
+                font-weight: 600;
+            }
+
+            .otp-section {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 15px;
+                padding: 30px;
+                text-align: center;
+                margin: 30px 0;
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .otp-section::before {
+                content: "";
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(
+                    circle,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    transparent 70%
+                );
+                animation: shimmer 3s ease-in-out infinite;
+            }
+
+            @keyframes shimmer {
+                0%,
+                100% {
+                    transform: rotate(0deg);
+                }
+                50% {
+                    transform: rotate(180deg);
+                }
+            }
+
+            .otp-label {
+                color: rgba(255, 255, 255, 0.9);
+                font-size: 1rem;
+                margin-bottom: 15px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                font-weight: 500;
+                position: relative;
+                z-index: 1;
+            }
+
             .btn {
                 display: inline-block;
-                padding: 12px 24px;
-                background: #007bff;
+                background: rgba(255, 255, 255, 0.2);
                 color: #ffffff;
                 text-decoration: none;
-                border-radius: 4px;
-                margin-top: 20px;
-                font-size: 14px;
+                border-radius: 10px;
+                padding: 20px 30px;
+                font-size: 2rem;
+                font-weight: bold;
+                letter-spacing: 8px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                backdrop-filter: blur(10px);
+                position: relative;
+                z-index: 1;
+                transition: all 0.3s ease;
             }
+
+            .btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-2px);
+            }
+
+            .validity-info {
+                background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+                color: #2d3436;
+                padding: 20px;
+                border-radius: 12px;
+                margin: 25px 0;
+                text-align: center;
+                font-weight: 600;
+                box-shadow: 0 5px 15px rgba(255, 234, 167, 0.4);
+                position: relative;
+            }
+
+            .validity-info::before {
+                content: "⏰";
+                font-size: 1.5rem;
+                margin-right: 10px;
+            }
+
+            .security-note {
+                background: #f8f9fa;
+                border-left: 4px solid #17a2b8;
+                padding: 20px;
+                margin: 25px 0;
+                border-radius: 0 8px 8px 0;
+                font-size: 0.95rem;
+                color: #495057;
+            }
+
+            .security-note::before {
+                content: "🛡️ ";
+                font-size: 1.2rem;
+            }
+
             .footer {
-                margin-top: 30px;
-                font-size: 12px;
-                color: #888;
+                background: #2c3e50;
+                color: rgba(255, 255, 255, 0.8);
+                text-align: center;
+                padding: 25px 30px;
+                font-size: 0.9rem;
+                position: relative;
+            }
+
+            .footer::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100px;
+                height: 3px;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                border-radius: 0 0 3px 3px;
+            }
+
+            .company-name {
+                font-weight: 700;
+                color: #fff;
+                margin-bottom: 5px;
+            }
+
+            @media (max-width: 600px) {
+                .container {
+                    margin: 20px auto;
+                    border-radius: 15px;
+                }
+
+                .content {
+                    padding: 30px 20px;
+                }
+
+                .header {
+                    padding: 30px 20px;
+                }
+
+                .btn {
+                    font-size: 1.5rem;
+                    letter-spacing: 4px;
+                    padding: 15px 25px;
+                }
+
+                .header h2 {
+                    font-size: 1.5rem;
+                }
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>OTP Verification</h2>
-            <p>Hello <%= name %>,</p>
-            <p class="btn">Your OTP code is: <strong><%= otp %></strong></p>
-            <p>This code is valid for 2 minutes.</p>
+            <div class="header">
+                <h2>OTP Verification</h2>
+                <div class="header-subtitle">Secure Access Code</div>
+            </div>
+
+            <div class="content">
+                <p class="greeting">Hello <%= name %>,</p>
+
+                <div class="otp-section">
+                    <div class="otp-label">Your OTP Code is</div>
+                    <div class="btn"><strong><%= otp %></strong></div>
+                </div>
+
+                <div class="validity-info">
+                    This code is valid for 2 minutes.
+                </div>
+
+                <div class="security-note">
+                    <strong>Security Notice:</strong> Never share this OTP with
+                    anyone. Our team will never ask for your OTP via phone or
+                    email.
+                </div>
+            </div>
+
             <div class="footer">
-                &copy; Tour Management. All rights reserved.
+                <div class="company-name">Tour Management System</div>
+                <div>&copy; 2025 All rights reserved.</div>
             </div>
         </div>
     </body>
