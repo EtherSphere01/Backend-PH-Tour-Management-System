@@ -35,6 +35,10 @@ const moduleRoutes = [
         route: PaymentRoutes,
     },
     {
+        path: "/ssl/payment",
+        route: PaymentRoutes,
+    },
+    {
         path: "/otp",
         route: OtpRoutes,
     },

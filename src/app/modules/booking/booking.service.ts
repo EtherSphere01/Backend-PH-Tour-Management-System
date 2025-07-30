@@ -1,14 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
+import { getTransactionId } from "../../utils/getTransactionId";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
 import { Payment } from "../payment/payment.model";
+import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
+import { SSLService } from "../sslCommerz/sslCommerz.service";
 import { Tour } from "../tour/tour.model";
 import { User } from "../user/user.model";
 import { BOOKING_STATUS, IBooking } from "./booking.interface";
 import { Booking } from "./booking.model";
-import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
-import { SSLService } from "../sslCommerz/sslCommerz.service";
-import { getTransactionId } from "../../utils/getTransactionId";
+
+/**
+ * Duplicate DB Collections / replica
+ *
+ * Relica DB -> [ Create Booking -> Create Payment ->  Update Booking -> Error] -> Real DB
+ */
 
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     const transactionId = getTransactionId();
@@ -19,15 +26,10 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     try {
         const user = await User.findById(userId);
 
-        // Optional: Comment out or modify this validation if you want to allow booking without complete profile
         if (!user?.phone || !user.address) {
-            console.warn(
-                `User ${userId} attempting to book without complete profile`
-            );
-            // You can either throw error (current behavior) or just log a warning
             throw new AppError(
                 httpStatus.BAD_REQUEST,
-                "Please Update Your Profile to Book a Tour. Add your phone number and address.",
+                "Please Update Your Profile to Book a Tour.",
                 ""
             );
         }
@@ -42,6 +44,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
             );
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const amount = Number(tour.costFrom) * Number(payload.guestCount!);
 
         const booking = await Booking.create(
@@ -94,18 +97,23 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
         console.log(sslPayment);
 
-        await session.commitTransaction();
+        await session.commitTransaction(); //transaction
         session.endSession();
         return {
             paymentUrl: sslPayment.GatewayPageURL,
             booking: updatedBooking,
         };
     } catch (error) {
-        await session.abortTransaction();
+        await session.abortTransaction(); // rollback
         session.endSession();
+        // throw new AppError(httpStatus.BAD_REQUEST, error) ❌❌
         throw error;
     }
 };
+
+// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Complete -> Backend(localhost:5000/api/v1/payment/success) -> Update Payment(PAID) & Booking(CONFIRM) -> redirect to frontend -> Frontend(localhost:5173/payment/success)
+
+// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Fail / Cancel -> Backend(localhost:5000) -> Update Payment(FAIL / CANCEL) & Booking(FAIL / CANCEL) -> redirect to frontend -> Frontend(localhost:5173/payment/cancel or localhost:5173/payment/fail)
 
 const getUserBookings = async () => {
     return {};
