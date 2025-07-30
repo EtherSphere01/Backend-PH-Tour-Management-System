@@ -17,14 +17,7 @@ const initPayment = catchAsync(async (req: Request, res: Response) => {
     });
 });
 const successPayment = catchAsync(async (req: Request, res: Response) => {
-    console.log("=== SUCCESS PAYMENT ENDPOINT HIT ===");
-    console.log("Request URL:", req.url);
-    console.log("Request method:", req.method);
-    console.log("Request headers:", req.headers);
-
-    // SSL Commerz can send data via query params or form data
     const paymentData = { ...req.query, ...req.body } as Record<string, string>;
-    console.log("Payment success callback received:", paymentData);
 
     const result = await PaymentService.successPayment(paymentData);
 
@@ -36,7 +29,6 @@ const successPayment = catchAsync(async (req: Request, res: Response) => {
 });
 const failPayment = catchAsync(async (req: Request, res: Response) => {
     const paymentData = { ...req.query, ...req.body } as Record<string, string>;
-    console.log("Payment fail callback received:", paymentData);
 
     const result = await PaymentService.failPayment(paymentData);
 
@@ -48,7 +40,6 @@ const failPayment = catchAsync(async (req: Request, res: Response) => {
 });
 const cancelPayment = catchAsync(async (req: Request, res: Response) => {
     const paymentData = { ...req.query, ...req.body } as Record<string, string>;
-    console.log("Payment cancel callback received:", paymentData);
 
     const result = await PaymentService.cancelPayment(paymentData);
 
@@ -72,7 +63,6 @@ const getInvoiceDownloadUrl = catchAsync(
     }
 );
 const validatePayment = catchAsync(async (req: Request, res: Response) => {
-    console.log("sslcommerz ipn url body", req.body);
     await SSLService.validatePayment(req.body);
     sendResponse(res, {
         statusCode: 200,
@@ -85,7 +75,6 @@ const validatePayment = catchAsync(async (req: Request, res: Response) => {
 // Test endpoint for debugging payment flow
 const testPaymentSuccess = catchAsync(async (req: Request, res: Response) => {
     const { transactionId } = req.params;
-    console.log("Testing payment success for transactionId:", transactionId);
 
     const testQuery = {
         transactionId: transactionId,
@@ -106,7 +95,6 @@ const testPaymentSuccess = catchAsync(async (req: Request, res: Response) => {
 // Debug endpoint to check payment details
 const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
     const { transactionId } = req.params;
-    console.log("Getting payment details for transactionId:", transactionId);
 
     const payment = await Payment.findOne({ transactionId }).populate(
         "booking"
@@ -130,20 +118,6 @@ const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// Simple test endpoint to verify routing
-const testRoute = catchAsync(async (req: Request, res: Response) => {
-    console.log("=== TEST ROUTE HIT ===");
-    console.log("Request URL:", req.url);
-    console.log("Request method:", req.method);
-
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: "Test route working",
-        data: { url: req.url, method: req.method },
-    });
-});
-
 export const PaymentController = {
     initPayment,
     successPayment,
@@ -153,5 +127,4 @@ export const PaymentController = {
     validatePayment,
     testPaymentSuccess,
     getPaymentDetails,
-    testRoute,
 };

@@ -23,5 +23,5 @@ router.post(
     PaymentController.testPaymentSuccess
 );
 router.get("/details/:transactionId", PaymentController.getPaymentDetails);
-router.get("/test", PaymentController.testRoute);
+
 export const PaymentRoutes = router;

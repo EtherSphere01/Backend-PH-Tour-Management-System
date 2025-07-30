@@ -54,11 +54,6 @@ const initPayment = async (bookingId: string) => {
     };
 };
 const successPayment = async (query: Record<string, string>) => {
-    // Update Booking Status to COnfirm
-    // Update Payment Status to PAID
-    console.log("Processing success payment with query:", query);
-    console.log("Looking for payment with transactionId:", query.transactionId);
-
     const session = await Booking.startSession();
     session.startTransaction();
 
@@ -71,20 +66,9 @@ const successPayment = async (query: Record<string, string>) => {
             { new: true, runValidators: true, session: session }
         );
 
-        console.log("Payment update result:", updatedPayment);
-
         if (!updatedPayment) {
-            console.log(
-                "Payment not found for transactionId:",
-                query.transactionId
-            );
             throw new AppError(401, "Payment not found", "");
         }
-
-        console.log(
-            "Payment updated successfully, booking ID:",
-            updatedPayment.booking
-        );
 
         const updatedBooking = await Booking.findByIdAndUpdate(
             updatedPayment?.booking,
@@ -138,23 +122,18 @@ const successPayment = async (query: Record<string, string>) => {
             ],
         });
 
-        await session.commitTransaction(); //transaction
+        await session.commitTransaction();
         session.endSession();
-        console.log("Payment success transaction committed successfully");
+
         return { success: true, message: "Payment Completed Successfully" };
     } catch (error) {
-        console.log("Error in success payment:", error);
-        await session.abortTransaction(); // rollback
+        await session.abortTransaction();
         session.endSession();
-        // throw new AppError(httpStatus.BAD_REQUEST, error) ❌❌
+
         throw error;
     }
 };
 const failPayment = async (query: Record<string, string>) => {
-    // Update Booking Status to FAIL
-    // Update Payment Status to FAIL
-    console.log("Processing fail payment with query:", query);
-
     const session = await Booking.startSession();
     session.startTransaction();
 
@@ -173,20 +152,17 @@ const failPayment = async (query: Record<string, string>) => {
             { runValidators: true, session }
         );
 
-        await session.commitTransaction(); //transaction
+        await session.commitTransaction(); 
         session.endSession();
         return { success: false, message: "Payment Failed" };
     } catch (error) {
-        await session.abortTransaction(); // rollback
+        await session.abortTransaction(); 
         session.endSession();
-        // throw new AppError(httpStatus.BAD_REQUEST, error) ❌❌
+       
         throw error;
     }
 };
 const cancelPayment = async (query: Record<string, string>) => {
-    // Update Booking Status to CANCEL
-    // Update Payment Status to CANCEL
-    console.log("Processing cancel payment with query:", query);
 
     const session = await Booking.startSession();
     session.startTransaction();

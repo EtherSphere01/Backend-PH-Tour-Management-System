@@ -55,7 +55,7 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
 
         return response.data;
     } catch (error: any) {
-        console.log("Payment Error Occured", error);
+        
         throw new AppError(httpStatus.BAD_REQUEST, error.message, "");
     }
 };
@@ -67,7 +67,7 @@ const validatePayment = async (payload: any) => {
             url: `${envVars.SSL.SSL_VALIDATION_API}?val_id=${payload.val_id}&store_id=${envVars.SSL.STORE_ID}&store_passwd=${envVars.SSL.STORE_PASS}`,
         });
 
-        console.log("sslcomeerz validate api response", response.data);
+       
 
         await Payment.updateOne(
             { transactionId: payload.tran_id },
@@ -75,7 +75,7 @@ const validatePayment = async (payload: any) => {
             { runValidators: true }
         );
     } catch (error: any) {
-        console.log(error);
+       
         throw new AppError(
             401,
             `Payment Validation Error, ${error.message}`,
