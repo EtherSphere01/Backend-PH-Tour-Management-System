@@ -67,9 +67,29 @@ const updateUser = async (
     payload: Partial<IUser>,
     decodedToken: JwtPayload
 ) => {
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+        if (userId !== decodedToken.useId) {
+            throw new AppError(
+                httpStatus.FORBIDDEN,
+                "You are not Authorized to update this user",
+                ""
+            );
+        }
+    }
+
     const isUserExists = await User.findById(userId);
     if (!isUserExists) {
         throw new AppError(httpStatus.NOT_FOUND, "User not found", "");
+    }
+    if (
+        decodedToken.role === Role.ADMIN &&
+        isUserExists.role === Role.SUPER_ADMIN
+    ) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not Authorized to update this user",
+            ""
+        );
     }
 
     if (payload.role) {
@@ -83,16 +103,16 @@ const updateUser = async (
                 ""
             );
         }
-        if (
-            payload.role === Role.SUPER_ADMIN &&
-            decodedToken.role === Role.ADMIN
-        ) {
-            throw new AppError(
-                httpStatus.FORBIDDEN,
-                "You are not Authorized",
-                ""
-            );
-        }
+        // if (
+        //     payload.role === Role.SUPER_ADMIN &&
+        //     decodedToken.role === Role.ADMIN
+        // ) {
+        //     throw new AppError(
+        //         httpStatus.FORBIDDEN,
+        //         "You are not Authorized",
+        //         ""
+        //     );
+        // }
     }
 
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
