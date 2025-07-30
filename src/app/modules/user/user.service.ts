@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
@@ -105,13 +106,6 @@ const updateUser = async (
                 ""
             );
         }
-    }
-
-    if (payload.password) {
-        payload.password = await bcryptjs.hash(
-            payload.password,
-            parseInt(envVars.BCRYPT_SALT_ROUNDS)
-        );
     }
 
     const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {

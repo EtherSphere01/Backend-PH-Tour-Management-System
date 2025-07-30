@@ -72,27 +72,7 @@ const validatePayment = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
-// Test endpoint for debugging payment flow
-const testPaymentSuccess = catchAsync(async (req: Request, res: Response) => {
-    const { transactionId } = req.params;
 
-    const testQuery = {
-        transactionId: transactionId,
-        amount: "1000",
-        status: "success",
-    };
-
-    const result = await PaymentService.successPayment(testQuery);
-
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: "Test payment success completed",
-        data: result,
-    });
-});
-
-// Debug endpoint to check payment details
 const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
     const { transactionId } = req.params;
 
@@ -125,6 +105,5 @@ export const PaymentController = {
     cancelPayment,
     getInvoiceDownloadUrl,
     validatePayment,
-    testPaymentSuccess,
     getPaymentDetails,
 };

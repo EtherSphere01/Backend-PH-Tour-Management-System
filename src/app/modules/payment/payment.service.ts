@@ -152,18 +152,17 @@ const failPayment = async (query: Record<string, string>) => {
             { runValidators: true, session }
         );
 
-        await session.commitTransaction(); 
+        await session.commitTransaction();
         session.endSession();
         return { success: false, message: "Payment Failed" };
     } catch (error) {
-        await session.abortTransaction(); 
+        await session.abortTransaction();
         session.endSession();
-       
+
         throw error;
     }
 };
 const cancelPayment = async (query: Record<string, string>) => {
-
     const session = await Booking.startSession();
     session.startTransaction();
 
@@ -182,13 +181,13 @@ const cancelPayment = async (query: Record<string, string>) => {
             { runValidators: true, session }
         );
 
-        await session.commitTransaction(); //transaction
+        await session.commitTransaction(); 
         session.endSession();
         return { success: false, message: "Payment Cancelled" };
     } catch (error) {
-        await session.abortTransaction(); // rollback
+        await session.abortTransaction(); 
         session.endSession();
-        // throw new AppError(httpStatus.BAD_REQUEST, error) ❌❌
+        
         throw error;
     }
 };

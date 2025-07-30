@@ -18,10 +18,6 @@ router.get(
     PaymentController.getInvoiceDownloadUrl
 );
 router.post("/validate-payment", PaymentController.validatePayment);
-router.post(
-    "/test-success/:transactionId",
-    PaymentController.testPaymentSuccess
-);
 router.get("/details/:transactionId", PaymentController.getPaymentDetails);
 
 export const PaymentRoutes = router;
