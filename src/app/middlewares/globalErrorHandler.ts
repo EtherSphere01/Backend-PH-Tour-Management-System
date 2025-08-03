@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppError";
 import mongoose from "mongoose";
-import { deleteImageFromCloudinary } from "../config/cloudinary.config";
+import { deleteImageFromCLoudinary } from "../config/cloudinary.config";
 
 const handleDuplicateError = (err: any) => {
     return {
@@ -43,14 +43,14 @@ export const globalErrorHandler = async (
     next: NextFunction
 ) => {
     if (req.file) {
-        await deleteImageFromCloudinary(req.file.path);
+        await deleteImageFromCLoudinary(req.file.path);
     }
     if (req.files && Array.isArray(req.files) && req.files.length) {
         const imageUrls = (req.files as Express.Multer.File[]).map(
             (file) => file.path
         );
         await Promise.all(
-            imageUrls.map((url) => deleteImageFromCloudinary(url))
+            imageUrls.map((url) => deleteImageFromCLoudinary(url))
         );
     }
     let statusCode = 500;
