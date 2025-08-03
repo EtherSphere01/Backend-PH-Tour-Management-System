@@ -1,39 +1,48 @@
-
-import { Request, Response } from 'express';
-import { catchAsync } from '../../utils/catchAsync';
-import { sendResponse } from '../../utils/sendResponse';
-import { TourService } from './tour.service';
+import { Request, Response } from "express";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
+import { TourService } from "./tour.service";
+import { ITour } from "./tour.interface";
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-    const result = await TourService.createTour(req.body);
+    const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map((file) => file.path),
+    };
+    const result = await TourService.createTour(payload);
     sendResponse(res, {
         statusCode: 201,
         success: true,
-        message: 'Tour created successfully',
+        message: "Tour created successfully",
         data: result,
     });
 });
 
 const getAllTours = catchAsync(async (req: Request, res: Response) => {
-
-    const query = req.query
-    const result = await TourService.getAllTours(query as Record<string, string>);
+    const query = req.query;
+    const result = await TourService.getAllTours(
+        query as Record<string, string>
+    );
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tours retrieved successfully',
+        message: "Tours retrieved successfully",
         data: result.data,
         meta: result.meta,
     });
 });
 
 const updateTour = catchAsync(async (req: Request, res: Response) => {
-
-    const result = await TourService.updateTour(req.params.id, req.body);
+    
+    const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map((file) => file.path),
+    };
+    const result = await TourService.updateTour(req.params.id, payload);
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tour updated successfully',
+        message: "Tour updated successfully",
         data: result,
     });
 });
@@ -44,7 +53,7 @@ const deleteTour = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tour deleted successfully',
+        message: "Tour deleted successfully",
         data: result,
     });
 });
@@ -53,11 +62,10 @@ const getAllTourTypes = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tour types retrieved successfully',
+        message: "Tour types retrieved successfully",
         data: result,
     });
 });
-
 
 const createTourType = catchAsync(async (req: Request, res: Response) => {
     const { name } = req.body;
@@ -65,7 +73,7 @@ const createTourType = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: 201,
         success: true,
-        message: 'Tour type created successfully',
+        message: "Tour type created successfully",
         data: result,
     });
 });
@@ -77,7 +85,7 @@ const updateTourType = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tour type updated successfully',
+        message: "Tour type updated successfully",
         data: result,
     });
 });
@@ -87,7 +95,7 @@ const deleteTourType = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'Tour type deleted successfully',
+        message: "Tour type deleted successfully",
         data: result,
     });
 });

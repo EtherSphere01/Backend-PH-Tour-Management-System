@@ -9,12 +9,14 @@ import AppError from "../../errorHelpers/AppError";
 import { Role } from "./user.interface";
 import { envVars } from "../../config/env";
 import { checkAuth } from "../../middlewares/checkAuth";
+import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
 router.post(
     "/register",
     validateRequest(createUserZodSchema),
+    multerUpload.single("file"),
     UserControllers.createUser
 );
 router.get(
@@ -22,9 +24,16 @@ router.get(
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     UserControllers.getAllUsers
 );
+router.get(
+    "/:id",
+    checkAuth(...Object.values(Role)),
+    UserControllers.getSingleUser
+);
+router.get("/me", checkAuth(...Object.values(Role)), UserControllers.getMe);
 router.patch(
     "/:id",
     validateRequest(updateUserZodSchema),
+    multerUpload.single("file"),
     checkAuth(...Object.values(Role)),
     UserControllers.updateUser
 );

@@ -6,9 +6,11 @@ import {
 } from "passport-google-oauth20";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { Role } from "../modules/user/user.interface";
+import { IsActive, Role } from "../modules/user/user.interface";
 import { Strategy as LocalStrategy } from "passport-local";
 import bcrypt from "bcryptjs";
+import AppError from "../errorHelpers/AppError";
+import httpStatus from "http-status-codes";
 
 passport.use(
     new GoogleStrategy(
@@ -31,9 +33,49 @@ passport.use(
                     });
                 }
 
-                let user = await User.findOne({ email });
-                if (!user) {
-                    user = await User.create({
+                let isUserExist = await User.findOne({ email });
+
+                if (
+                    isUserExist &&
+                    (isUserExist.isActive === IsActive.BLOCKED ||
+                        isUserExist.isActive === IsActive.INACTIVE)
+                ) {
+                    // throw new AppError(
+                    //     httpStatus.UNAUTHORIZED,
+                    //     `User is ${isUserExist.isActive}`,
+                    //     ""
+                    // );
+
+                    return done(null, false, {
+                        message: `User is ${isUserExist.isActive}`,
+                    });
+                }
+
+                if (isUserExist && isUserExist.isDeleted) {
+                    // throw new AppError(
+                    //     httpStatus.UNAUTHORIZED,
+                    //     "User is deleted",
+                    //     ""
+                    // );
+
+                    return done(null, false, {
+                        message: "User is deleted",
+                    });
+                }
+
+                if (isUserExist && !isUserExist.isVerified) {
+                    // throw new AppError(
+                    //     httpStatus.UNAUTHORIZED,
+                    //     "User is not verified",
+                    //     ""
+                    // );
+                    return done(null, false, {
+                        message: "User is not verified",
+                    });
+                }
+
+                if (!isUserExist) {
+                    isUserExist = await User.create({
                         email,
                         name: profile.displayName || "Unknown User",
                         profilePicture: profile.photos?.[0]?.value || "",
@@ -45,7 +87,7 @@ passport.use(
                         },
                     });
                 }
-                return done(null, user);
+                return done(null, isUserExist);
             } catch (error) {
                 return done(error as Error);
             }
@@ -79,6 +121,33 @@ passport.use(
                     return done(null, false, {
                         message: "User does not exist",
                     });
+                }
+
+                if (
+                    isUserExist.isActive === IsActive.BLOCKED ||
+                    isUserExist.isActive === IsActive.INACTIVE
+                ) {
+                    throw new AppError(
+                        httpStatus.UNAUTHORIZED,
+                        `User is ${isUserExist.isActive}`,
+                        ""
+                    );
+                }
+
+                if (isUserExist.isDeleted) {
+                    throw new AppError(
+                        httpStatus.UNAUTHORIZED,
+                        "User is deleted",
+                        ""
+                    );
+                }
+
+                if (!isUserExist.isVerified) {
+                    throw new AppError(
+                        httpStatus.UNAUTHORIZED,
+                        "User is not verified",
+                        ""
+                    );
                 }
 
                 const isGoogleAuthenticated = isUserExist.auths.some(
