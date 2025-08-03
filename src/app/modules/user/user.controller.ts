@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { User } from "./user.model";
 import httpStatus from "http-status-codes";
@@ -79,12 +80,6 @@ const getSingleUser = catchAsync(
 const updateUser = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const userId = req.params.id;
-
-        // const token = req.headers.authorization;
-        // const verifiedToken = verifyToken(
-        //     token as string,
-        //     envVars.JWT_ACCESS_SECRET
-        // ) as JwtPayload;
 
         const verifiedToken = req.user;
 

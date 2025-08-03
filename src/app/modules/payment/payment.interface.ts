@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Types } from "mongoose";
 
 export enum PAYMENT_STATUS {
@@ -5,14 +6,14 @@ export enum PAYMENT_STATUS {
     UNPAID = "UNPAID",
     CANCELLED = "CANCELLED",
     FAILED = "FAILED",
-    REFUNDED = "REFUNDED",
+    REFUNDED = "REFUNDED"
 }
 
 export interface IPayment {
     booking: Types.ObjectId;
     transactionId: string;
     amount: number;
-    paymentGetawayData?: any;
-    invoiceUrl?: string;
-    status: PAYMENT_STATUS;
+    paymentGatewayData?: any
+    invoiceUrl?: string
+    status: PAYMENT_STATUS
 }

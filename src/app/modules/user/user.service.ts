@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
+import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 import httpStatus from "http-status-codes";
 import bcryptjs from "bcryptjs";
 import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
-import { deleteImageFromCloudinary } from "../../config/cloudinary.config";
+import { deleteImageFromCLoudinary } from "../../config/cloudinary.config";
 
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, ...rest } = payload;
@@ -66,9 +67,29 @@ const updateUser = async (
     payload: Partial<IUser>,
     decodedToken: JwtPayload
 ) => {
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+        if (userId !== decodedToken.useId) {
+            throw new AppError(
+                httpStatus.FORBIDDEN,
+                "You are not Authorized to update this user",
+                ""
+            );
+        }
+    }
+
     const isUserExists = await User.findById(userId);
     if (!isUserExists) {
         throw new AppError(httpStatus.NOT_FOUND, "User not found", "");
+    }
+    if (
+        decodedToken.role === Role.ADMIN &&
+        isUserExists.role === Role.SUPER_ADMIN
+    ) {
+        throw new AppError(
+            httpStatus.FORBIDDEN,
+            "You are not Authorized to update this user",
+            ""
+        );
     }
 
     if (payload.role) {
@@ -82,16 +103,16 @@ const updateUser = async (
                 ""
             );
         }
-        if (
-            payload.role === Role.SUPER_ADMIN &&
-            decodedToken.role === Role.ADMIN
-        ) {
-            throw new AppError(
-                httpStatus.FORBIDDEN,
-                "You are not Authorized",
-                ""
-            );
-        }
+        // if (
+        //     payload.role === Role.SUPER_ADMIN &&
+        //     decodedToken.role === Role.ADMIN
+        // ) {
+        //     throw new AppError(
+        //         httpStatus.FORBIDDEN,
+        //         "You are not Authorized",
+        //         ""
+        //     );
+        // }
     }
 
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
@@ -107,20 +128,13 @@ const updateUser = async (
         }
     }
 
-    if (payload.password) {
-        payload.password = await bcryptjs.hash(
-            payload.password,
-            parseInt(envVars.BCRYPT_SALT_ROUNDS)
-        );
-    }
-
     const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
         new: true,
         runValidators: true,
     });
 
     if (isUserExists.picture && payload.picture) {
-        await deleteImageFromCloudinary(isUserExists.picture);
+        await deleteImageFromCLoudinary(isUserExists.picture);
     }
     return newUpdatedUser;
 };
